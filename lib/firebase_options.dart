@@ -41,46 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'your-web-api-key',
-    appId: 'your-web-app-id',
-    messagingSenderId: 'your-sender-id',
+    apiKey: 'AIzaSyCwooiAboCDeGIz-JX2P51o-UDJudECoQ0',
+    appId: '1:95669286180:web:72a9cc066007aa9f012fb1',
+    messagingSenderId: '95669286180',
     projectId: 'nischalfancystorenfs',
     authDomain: 'nischalfancystorenfs.firebaseapp.com',
-    storageBucket: 'nischalfancystorenfs.appspot.com',
+    storageBucket: 'nischalfancystorenfs.firebasestorage.app',
+    measurementId: 'G-BDSK0TSVG9',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'your-android-api-key',
-    appId: 'your-android-app-id',
-    messagingSenderId: 'your-sender-id',
+    apiKey: 'AIzaSyAg-umA4CQBOfDuXUQjaU5NFJ2kNbXetHE',
+    appId: '1:95669286180:android:78b31d8d9e1d9217012fb1',
+    messagingSenderId: '95669286180',
     projectId: 'nischalfancystorenfs',
-    storageBucket: 'nischalfancystorenfs.appspot.com',
+    storageBucket: 'nischalfancystorenfs.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'your-ios-api-key',
-    appId: 'your-ios-app-id',
-    messagingSenderId: 'your-sender-id',
+    apiKey: 'AIzaSyCetbfuOhTbuO0PHK4vW80CrhoLPf5wyQc',
+    appId: '1:95669286180:ios:25cc38facd92eca5012fb1',
+    messagingSenderId: '95669286180',
     projectId: 'nischalfancystorenfs',
-    storageBucket: 'nischalfancystorenfs.appspot.com',
+    storageBucket: 'nischalfancystorenfs.firebasestorage.app',
+    iosClientId: '95669286180-7alpt5ahdt2u5d72q5359rumppfiu5er.apps.googleusercontent.com',
     iosBundleId: 'com.example.nfs.nfsApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'your-macos-api-key',
-    appId: 'your-macos-app-id',
-    messagingSenderId: 'your-sender-id',
+    apiKey: 'AIzaSyCetbfuOhTbuO0PHK4vW80CrhoLPf5wyQc',
+    appId: '1:95669286180:ios:25cc38facd92eca5012fb1',
+    messagingSenderId: '95669286180',
     projectId: 'nischalfancystorenfs',
-    storageBucket: 'nischalfancystorenfs.appspot.com',
+    storageBucket: 'nischalfancystorenfs.firebasestorage.app',
+    iosClientId: '95669286180-7alpt5ahdt2u5d72q5359rumppfiu5er.apps.googleusercontent.com',
     iosBundleId: 'com.example.nfs.nfsApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'your-windows-api-key',
-    appId: 'your-windows-app-id',
-    messagingSenderId: 'your-sender-id',
+    apiKey: 'AIzaSyCwooiAboCDeGIz-JX2P51o-UDJudECoQ0',
+    appId: '1:95669286180:web:195003f268e58cca012fb1',
+    messagingSenderId: '95669286180',
     projectId: 'nischalfancystorenfs',
     authDomain: 'nischalfancystorenfs.firebaseapp.com',
-    storageBucket: 'nischalfancystorenfs.appspot.com',
+    storageBucket: 'nischalfancystorenfs.firebasestorage.app',
+    measurementId: 'G-YL9W91KM6M',
   );
+
 }
