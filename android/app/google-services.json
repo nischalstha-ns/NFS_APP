@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "95669286180",
+    "project_id": "nischalfancystorenfs",
+    "storage_bucket": "nischalfancystorenfs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95669286180:android:78b31d8d9e1d9217012fb1",
+        "android_client_info": {
+          "package_name": "com.example.nfs.nfs_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg-umA4CQBOfDuXUQjaU5NFJ2kNbXetHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
