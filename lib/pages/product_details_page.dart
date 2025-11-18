@@ -87,8 +87,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
               ],
             ),
-            child: ListenableBuilder(
-              listenable: _wishlistService,
+            child: AnimatedBuilder(
+              animation: _wishlistService,
               builder: (context, child) {
                 final isInWishlist = _wishlistService.isInWishlist(widget.product);
                 return IconButton(

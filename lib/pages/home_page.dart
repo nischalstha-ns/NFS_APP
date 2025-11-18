@@ -370,8 +370,8 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ],
                             ),
-                            child: ListenableBuilder(
-                              listenable: _wishlistService,
+                            child: AnimatedBuilder(
+                              animation: _wishlistService,
                               builder: (context, child) {
                                 final isInWishlist = _wishlistService.isInWishlist(product);
                                 return GestureDetector(
