@@ -123,7 +123,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.deepPurple.withOpacity(0.1) : Colors.grey.shade200,
+        color: isSelected ? Colors.deepPurple.withValues(alpha: 0.1) : Colors.grey.shade200,
         shape: BoxShape.circle,
         border: isSelected ? Border.all(color: Colors.deepPurple, width: 2) : null,
       ),
@@ -139,7 +139,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Text(
