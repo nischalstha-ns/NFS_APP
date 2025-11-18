@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/wishlist_service.dart';
+import '../services/cart_service.dart';
+import 'cart_page.dart';
 
 class Product {
   final String id;
@@ -35,6 +37,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int selectedColorIndex = 0;
   final TextEditingController _couponController = TextEditingController();
   final WishlistService _wishlistService = WishlistService();
+  final CartService _cartService = CartService();
 
   @override
   void dispose() {
@@ -754,51 +757,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   void _buyNow() {
-    final total = widget.product.price * quantity;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Purchase Confirmation", style: TextStyle(fontWeight: FontWeight.w600)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Product: ${widget.product.name}"),
-            Text("Quantity: $quantity"),
-            Text("Total: \$${total.toStringAsFixed(2)}"),
-            if (_couponController.text.isNotEmpty)
-              Text("Coupon: ${_couponController.text}"),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6C63FF),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              _processPurchase();
-            },
-            child: const Text("Confirm Purchase", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _processPurchase() {
+    _cartService.addToCart(widget.product, quantity: quantity);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Purchase successful! ${widget.product.name} x$quantity"),
+        content: Text("${widget.product.name} x$quantity added to cart"),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        action: SnackBarAction(
+          label: "View Cart",
+          textColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CartPage()),
+            );
+          },
+        ),
       ),
     );
   }
