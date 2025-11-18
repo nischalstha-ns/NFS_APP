@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/wishlist_service.dart';
 
 class Product {
   final String id;
@@ -33,6 +34,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int quantity = 1;
   int selectedColorIndex = 0;
   final TextEditingController _couponController = TextEditingController();
+  final WishlistService _wishlistService = WishlistService();
 
   @override
   void dispose() {
@@ -71,6 +73,46 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         ),
         actions: [
           Container(
+            margin: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            child: ListenableBuilder(
+              listenable: _wishlistService,
+              builder: (context, child) {
+                final isInWishlist = _wishlistService.isInWishlist(widget.product);
+                return IconButton(
+                  onPressed: () {
+                    _wishlistService.toggleWishlist(widget.product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isInWishlist 
+                            ? "${widget.product.name} removed from wishlist"
+                            : "${widget.product.name} added to wishlist"
+                        ),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    isInWishlist ? Icons.favorite : Icons.favorite_border,
+                    color: isInWishlist ? Colors.red.shade400 : Colors.black87,
+                    size: 20,
+                  ),
+                );
+              },
+            ),
+          ),
+          Container(
             margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -91,7 +133,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
       bottomNavigationBar: _bottomBar(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width < 600 ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -117,64 +159,117 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _productGallery() {
-    return Container(
-      height: 300,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isSmallScreen = screenWidth < 600;
+        final galleryHeight = isSmallScreen ? 250.0 : 300.0;
+        final iconSize = isSmallScreen ? 80.0 : 100.0;
+        
+        return Container(
+          height: galleryHeight,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _thumbIcon(widget.product.icon, true),
-                _thumbIcon(widget.product.icon, false),
-                _thumbIcon(widget.product.icon, false),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF6C63FF).withValues(alpha: 0.1),
-                    const Color(0xFF9C88FF).withValues(alpha: 0.05),
+          child: isSmallScreen ? Column(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF6C63FF).withValues(alpha: 0.1),
+                        const Color(0xFF9C88FF).withValues(alpha: 0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        widget.product.icon,
+                        size: iconSize,
+                        color: const Color(0xFF6C63FF),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _thumbIcon(widget.product.icon, true),
+                    _thumbIcon(widget.product.icon, false),
+                    _thumbIcon(widget.product.icon, false),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(20),
               ),
-              child: Center(
+            ],
+          ) : Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _thumbIcon(widget.product.icon, true),
+                    _thumbIcon(widget.product.icon, false),
+                    _thumbIcon(widget.product.icon, false),
+                  ],
+                ),
+              ),
+              Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF6C63FF).withValues(alpha: 0.1),
+                        const Color(0xFF9C88FF).withValues(alpha: 0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Icon(
-                    widget.product.icon,
-                    size: 100,
-                    color: const Color(0xFF6C63FF),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        widget.product.icon,
+                        size: iconSize,
+                        color: const Color(0xFF6C63FF),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -274,74 +369,81 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _priceSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Price",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isSmallScreen = screenWidth < 400;
+        
+        return Container(
+          padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
               ),
-              const SizedBox(height: 4),
-              Row(
+            ],
+          ),
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "\$${widget.product.price.toStringAsFixed(2)}",
-                    style: const TextStyle(
-                      fontSize: 32,
-                      color: Color(0xFF6C63FF),
-                      fontWeight: FontWeight.w700,
+                    "Price",
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 12 : 14,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      "-20%",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.red.shade600,
-                        fontWeight: FontWeight.w600,
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        "\$${widget.product.price.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 24 : 32,
+                          color: const Color(0xFF6C63FF),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          "-20%",
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 10 : 12,
+                            color: Colors.red.shade600,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    "\$${(widget.product.price * 1.2).toStringAsFixed(2)}",
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      color: Colors.grey[500],
+                      decoration: TextDecoration.lineThrough,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
-              Text(
-                "\$${(widget.product.price * 1.2).toStringAsFixed(2)}",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[500],
-                  decoration: TextDecoration.lineThrough,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -382,22 +484,34 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _purchaseInfo() {
-    return Row(
-      children: [
-        Stack(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isSmallScreen = screenWidth < 400;
+        
+        return Flex(
+          direction: isSmallScreen ? Axis.vertical : Axis.horizontal,
+          crossAxisAlignment: isSmallScreen ? CrossAxisAlignment.center : CrossAxisAlignment.start,
           children: [
-            _userAvatar(Colors.blue, 0),
-            Positioned(left: 20, child: _userAvatar(Colors.green, 1)),
-            Positioned(left: 40, child: _userAvatar(Colors.orange, 2)),
-            Positioned(left: 60, child: _userAvatar(Colors.red, 3)),
+            Stack(
+              children: [
+                _userAvatar(Colors.blue, 0),
+                Positioned(left: 20, child: _userAvatar(Colors.green, 1)),
+                Positioned(left: 40, child: _userAvatar(Colors.orange, 2)),
+                Positioned(left: 60, child: _userAvatar(Colors.red, 3)),
+              ],
+            ),
+            SizedBox(width: isSmallScreen ? 0 : 80, height: isSmallScreen ? 8 : 0),
+            Text(
+              "2,847+ Already Purchased",
+              style: TextStyle(
+                fontWeight: FontWeight.w500, 
+                fontSize: isSmallScreen ? 12 : 14
+              ),
+            ),
           ],
-        ),
-        const SizedBox(width: 80),
-        const Text(
-          "2,847+ Already Purchased",
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -460,85 +574,155 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _bottomBar() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  _qtyBtn(Icons.remove, () {
-                    if (quantity > 1) setState(() => quantity--);
-                  }),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      quantity.toString(),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  _qtyBtn(Icons.add, () => setState(() => quantity++)),
-                ],
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isSmallScreen = screenWidth < 400;
+        
+        return Container(
+          padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: isSmallScreen ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(16),
-                    onTap: () => _buyNow(),
-                    child: Center(
-                      child: Text(
-                        "Buy Now • \$${(widget.product.price * quantity).toStringAsFixed(2)}",
-                        style: const TextStyle(
-                          fontSize: 16, 
-                          color: Colors.white, 
-                          fontWeight: FontWeight.w600
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _qtyBtn(Icons.remove, () {
+                        if (quantity > 1) setState(() => quantity--);
+                      }),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          quantity.toString(),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      _qtyBtn(Icons.add, () => setState(() => quantity++)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _buyNow(),
+                        child: Center(
+                          child: Text(
+                            "Buy Now • \$${(widget.product.price * quantity).toStringAsFixed(2)}",
+                            style: const TextStyle(
+                              fontSize: 14, 
+                              color: Colors.white, 
+                              fontWeight: FontWeight.w600
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
+            ) : Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      _qtyBtn(Icons.remove, () {
+                        if (quantity > 1) setState(() => quantity--);
+                      }),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          quantity.toString(),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      _qtyBtn(Icons.add, () => setState(() => quantity++)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _buyNow(),
+                        child: Center(
+                          child: Text(
+                            "Buy Now • \$${(widget.product.price * quantity).toStringAsFixed(2)}",
+                            style: const TextStyle(
+                              fontSize: 16, 
+                              color: Colors.white, 
+                              fontWeight: FontWeight.w600
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
