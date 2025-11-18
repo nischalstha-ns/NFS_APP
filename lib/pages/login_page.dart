@@ -33,12 +33,7 @@ class _LoginPageState extends State<LoginPage> {
           _emailController.text.trim(),
           _passwordController.text,
         );
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        }
+        // Navigation handled by main.dart auth state listener
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

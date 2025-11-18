@@ -4,28 +4,33 @@ import '../services/wishlist_service.dart';
 import '../services/cart_service.dart';
 import 'login_page.dart';
 import 'product_details_page.dart' show ProductDetailsPage, Product;
-import 'wishlist_page.dart';
-import 'cart_page.dart';
-import 'profile_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    return const HomePageContent();
+  }
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageContent extends StatefulWidget {
+  const HomePageContent({super.key});
+
+  @override
+  State<HomePageContent> createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
   final AuthService _authService = AuthService();
   final WishlistService _wishlistService = WishlistService();
   final CartService _cartService = CartService();
-  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      bottomNavigationBar: _bottomNavBar(),
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -448,57 +453,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _bottomNavBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const WishlistPage()),
-            );
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const CartPage()),
-            );
-          } else if (index == 3) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            );
-          }
-        },
-        selectedItemColor: const Color(0xFF6C63FF),
-        unselectedItemColor: Colors.grey.shade400,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_rounded), label: "Wishlist"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart_rounded), label: "Cart"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded), label: "Profile"),
-        ],
-      ),
-    );
-  }
+
 }

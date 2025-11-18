@@ -3,8 +3,6 @@ import '../services/auth_service.dart';
 import '../services/cart_service.dart';
 import '../services/wishlist_service.dart';
 import 'login_page.dart';
-import 'cart_page.dart';
-import 'wishlist_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -221,11 +219,11 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _navigateToWishlist() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const WishlistPage()));
+    // Navigation handled by main navigation
   }
 
   void _navigateToCart() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()));
+    // Navigation handled by main navigation
   }
 
   void _showEditProfile() {
@@ -348,6 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () async {
+              Navigator.pop(context);
               await _authService.signOut();
               if (context.mounted) {
                 Navigator.pushAndRemoveUntil(
