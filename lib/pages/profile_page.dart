@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/cart_service.dart';
 import '../services/wishlist_service.dart';
+import '../admin/admin_dashboard.dart';
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -178,8 +179,17 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _profileOptions() {
+    final isAdmin = _authService.currentUser?.email == 'admin@nfs.com';
+    
     return Column(
       children: [
+        if (isAdmin)
+          _optionTile(
+            Icons.admin_panel_settings,
+            "Admin Panel",
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboard())),
+            color: Colors.red,
+          ),
         _optionTile(Icons.edit, "Edit Profile", () => _showEditProfile()),
         _optionTile(Icons.location_on, "Shipping Address", () => _showShippingAddress()),
         _optionTile(Icons.payment, "Payment Methods", () => _showPaymentMethods()),
@@ -190,12 +200,12 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _optionTile(IconData icon, String title, VoidCallback onTap) {
+  Widget _optionTile(IconData icon, String title, VoidCallback onTap, {Color? color}) {
     return Column(
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: Icon(icon, color: const Color(0xFF6C63FF)),
+          leading: Icon(icon, color: color ?? const Color(0xFF6C63FF)),
           title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: onTap,
