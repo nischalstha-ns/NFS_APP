@@ -4,12 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'pages/login_page.dart';
 import 'pages/main_navigation.dart';
+import 'utils/admin_init.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await AdminInit.initializeAdminUser();
   runApp(const MyApp());
 }
 

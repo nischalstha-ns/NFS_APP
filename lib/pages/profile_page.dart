@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/cart_service.dart';
 import '../services/wishlist_service.dart';
-import '../admin/admin_dashboard.dart';
+import '../services/admin_service.dart';
+import '../admin/admin_guard.dart';
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -179,17 +180,22 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _profileOptions() {
-    final isAdmin = _authService.currentUser?.email == 'admin@nfs.com';
-    
     return Column(
       children: [
-        if (isAdmin)
-          _optionTile(
-            Icons.admin_panel_settings,
-            "Admin Panel",
-            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboard())),
-            color: Colors.red,
-          ),
+        FutureBuilder<bool>(
+          future: AdminService().isCurrentUserAdmin(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data!) {
+              return _optionTile(
+                Icons.admin_panel_settings,
+                "Admin Panel",
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminGuard())),
+                color: Colors.red,
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
         _optionTile(Icons.edit, "Edit Profile", () => _showEditProfile()),
         _optionTile(Icons.location_on, "Shipping Address", () => _showShippingAddress()),
         _optionTile(Icons.payment, "Payment Methods", () => _showPaymentMethods()),
