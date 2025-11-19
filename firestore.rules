@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection rules
+    match /users/{email} {
+      // Allow read/write for authenticated users on their own document
+      allow read, write: if request.auth != null && request.auth.token.email == email;
+      
+      // Allow admin to read all user documents
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.token.email)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.role == 'admin';
+    }
+    
+    // Products collection rules
+    match /products/{productId} {
+      // Allow all authenticated users to read products
+      allow read: if request.auth != null;
+      
+      // Only admin can create, update, delete products
+      allow create, update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.token.email)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.role == 'admin';
+    }
+    
+    // Orders collection rules
+    match /orders/{orderId} {
+      // Users can read/write their own orders
+      allow read, write: if request.auth != null && 
+        resource.data.userEmail == request.auth.token.email;
+      
+      // Admin can read all orders
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.token.email)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.role == 'admin';
+      
+      // Admin can update order status
+      allow update: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.token.email)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.role == 'admin';
+    }
+    
+    // Categories collection rules
+    match /categories/{categoryId} {
+      // Allow all authenticated users to read categories
+      allow read: if request.auth != null;
+      
+      // Only admin can create, update, delete categories
+      allow create, update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.token.email)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.role == 'admin';
+    }
+    
+    // Cart collection rules
+    match /carts/{userId} {
+      // Users can only access their own cart
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Wishlist collection rules
+    match /wishlists/{userId} {
+      // Users can only access their own wishlist
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Reviews collection rules
+    match /reviews/{reviewId} {
+      // All authenticated users can read reviews
+      allow read: if request.auth != null;
+      
+      // Users can create reviews
+      allow create: if request.auth != null && 
+        request.auth.token.email == resource.data.userEmail;
+      
+      // Users can update/delete their own reviews
+      allow update, delete: if request.auth != null && 
+        request.auth.token.email == resource.data.userEmail;
+      
+      // Admin can moderate all reviews
+      allow update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.token.email)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.role == 'admin';
+    }
+  }
+}
