@@ -46,17 +46,20 @@ class AuthService {
     final userData = UserModel(
       uid: user.uid,
       email: user.email!,
-      role: user.email == 'nischal@gmail.com' ? 'admin' : 'user',
+      role: user.email == 'nischal@gmail.com' ? 'admin' : 'customer',
       displayName: user.displayName,
     );
     
-    await _firestore.collection('users').doc(user.email).set(userData.toMap());
+    await _firestore.collection('users').doc(user.email).set(userData.toMap(), SetOptions(merge: true));
   }
 
   Future<void> _ensureUserDocument(User user) async {
     final doc = await _firestore.collection('users').doc(user.email).get();
     if (!doc.exists) {
       await _createUserDocument(user);
+    } else {
+      // Update UID if it's different
+      await _firestore.collection('users').doc(user.email).update({'uid': user.uid});
     }
   }
 }

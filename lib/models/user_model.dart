@@ -15,7 +15,7 @@ class UserModel {
     return UserModel(
       uid: map['uid'] ?? '',
       email: map['email'] ?? '',
-      role: map['role'] ?? 'user',
+      role: map['role'] ?? 'customer',
       displayName: map['displayName'],
     );
   }

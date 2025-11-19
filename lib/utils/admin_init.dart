@@ -24,7 +24,7 @@ class AdminInit {
       } else {
         // Update existing user to admin if not already
         final userData = UserModel.fromMap(doc.data()!);
-        if (!userData.isAdmin) {
+        if (userData.role != 'admin') {
           await _firestore.collection('users').doc(adminEmail).update({'role': 'admin'});
         }
       }
