@@ -79,4 +79,7 @@ class CloudinaryService {
       throw 'Failed to upload images: $e';
     }
   }
+
+  // Note: Cloudinary free tier doesn't support API deletion
+  // Images remain in Cloudinary but product references are removed from Firestore
 }

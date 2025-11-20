@@ -341,11 +341,11 @@ class _ProductsPageState extends State<ProductsPage> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () async {
+              Navigator.pop(context);
               await _firestore.collection('products').doc(productId).delete();
               if (context.mounted) {
-                Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Product deleted successfully')),
+                  const SnackBar(content: Text('Product deleted successfully'), backgroundColor: Colors.green),
                 );
               }
             },
