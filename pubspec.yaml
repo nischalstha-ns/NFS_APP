@@ -44,6 +44,7 @@ dependencies:
   
   # Image picker
   image_picker: ^1.0.7
+  cross_file: ^0.3.3+4
   uuid: ^4.3.3
   cloudinary_public: ^0.21.0
   http: ^1.1.0

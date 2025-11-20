@@ -1,7 +1,9 @@
-import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import '../services/cloudinary_service.dart';
 
 class ProductFormPage extends StatefulWidget {
@@ -25,7 +27,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
   String _status = 'Active';
   List<String> _selectedSizes = [];
   List<String> _selectedColors = [];
-  List<File> _newImages = [];
+  List<XFile> _newImages = [];
   List<String> _existingImages = [];
   bool _isLoading = false;
 
@@ -140,12 +142,17 @@ class _ProductFormPageState extends State<ProductFormPage> {
         if (_existingImages.isNotEmpty || _newImages.isNotEmpty)
           SizedBox(
             height: 100,
-            child: ListView(
+            child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              children: [
-                ..._existingImages.map((url) => _buildImagePreview(url, isUrl: true)),
-                ..._newImages.map((file) => _buildImagePreview(file.path, isUrl: false)),
-              ],
+              itemCount: _existingImages.length + _newImages.length,
+              itemBuilder: (context, index) {
+                if (index < _existingImages.length) {
+                  return _buildImagePreview(_existingImages[index], isUrl: true);
+                } else {
+                  final fileIndex = index - _existingImages.length;
+                  return _buildImagePreview(_newImages[fileIndex].path, isUrl: false, xFile: _newImages[fileIndex]);
+                }
+              },
             ),
           )
         else
@@ -163,16 +170,46 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  Widget _buildImagePreview(String path, {required bool isUrl}) {
+  Widget _buildImagePreview(String path, {required bool isUrl, XFile? xFile}) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: Stack(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: isUrl
-                ? Image.network(path, width: 100, height: 100, fit: BoxFit.cover)
-                : Image.file(File(path), width: 100, height: 100, fit: BoxFit.cover),
+            child: Container(
+              width: 100,
+              height: 100,
+              color: Colors.grey[200],
+              child: isUrl
+                  ? Image.network(
+                      path,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                    )
+                  : xFile != null
+                      ? FutureBuilder<Uint8List>(
+                          future: xFile.readAsBytes(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Image.memory(
+                                snapshot.data!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              );
+                            }
+                            return const Center(child: CircularProgressIndicator());
+                          },
+                        )
+                      : const Icon(Icons.error),
+            ),
           ),
           Positioned(
             top: 4,
@@ -344,17 +381,32 @@ class _ProductFormPageState extends State<ProductFormPage> {
   }
 
   Future<void> _pickImages() async {
-    final picker = ImagePicker();
-    final images = await picker.pickMultiImage();
-    if (images.isNotEmpty) {
-      setState(() {
-        _newImages.addAll(images.map((e) => File(e.path)));
-      });
+    try {
+      final picker = ImagePicker();
+      final List<XFile> images = await picker.pickMultiImage();
+      if (images.isNotEmpty) {
+        setState(() {
+          _newImages.addAll(images);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
   Future<void> _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (widget.productId == null && _newImages.isEmpty && _existingImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add at least one image'), backgroundColor: Colors.red),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -362,15 +414,30 @@ class _ProductFormPageState extends State<ProductFormPage> {
       List<String> allImageUrls = List.from(_existingImages);
 
       if (_newImages.isNotEmpty) {
-        final uploadedUrls = await CloudinaryService.uploadMultipleImages(_newImages, 'products');
-        allImageUrls.addAll(uploadedUrls);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Uploading images...'), duration: Duration(seconds: 2)),
+          );
+        }
+        
+        try {
+          final uploadedUrls = await CloudinaryService.uploadMultipleXFiles(_newImages, 'products');
+          
+          if (uploadedUrls.isEmpty) {
+            throw 'No images were uploaded';
+          }
+          
+          allImageUrls.addAll(uploadedUrls);
+        } catch (uploadError) {
+          throw 'Image upload failed: $uploadError\n\nMake sure:\n1. Upload preset "nfs_app_preset" exists in Cloudinary\n2. Preset is set to "Unsigned"\n3. Internet connection is stable';
+        }
       }
 
       final productData = {
-        'name': _nameController.text,
-        'description': _descriptionController.text,
-        'category': _categoryController.text,
-        'brand': _brandController.text,
+        'name': _nameController.text.trim(),
+        'description': _descriptionController.text.trim(),
+        'category': _categoryController.text.trim(),
+        'brand': _brandController.text.trim(),
         'price': double.parse(_priceController.text),
         'stock': int.parse(_stockController.text.isEmpty ? '0' : _stockController.text),
         'status': _status,
@@ -387,14 +454,21 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.productId == null ? 'Product created successfully' : 'Product updated successfully')),
+          SnackBar(
+            content: Text(widget.productId == null ? 'Product created successfully!' : 'Product updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
         );
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
         );
       }
     } finally {
