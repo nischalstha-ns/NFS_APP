@@ -76,10 +76,7 @@ class _ProfilePageNewState extends State<ProfilePageNew> {
       pinned: true,
       elevation: _showHeaderAvatar ? 4 : 0,
       backgroundColor: Colors.white,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.grey),
-        onPressed: () => Navigator.pop(context),
-      ),
+      automaticallyImplyLeading: false,
       title: const Text('Profile', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w600)),
       actions: [
         AnimatedOpacity(
