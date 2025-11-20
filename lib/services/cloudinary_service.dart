@@ -37,15 +37,5 @@ class CloudinaryService {
     }
   }
 
-  static Future<void> deleteImage(String publicId) async {
-    try {
-      await _cloudinary.deleteFile(
-        publicId: publicId,
-        resourceType: CloudinaryResourceType.Image,
-        invalidate: true,
-      );
-    } catch (e) {
-      throw 'Failed to delete image: $e';
-    }
-  }
+
 }

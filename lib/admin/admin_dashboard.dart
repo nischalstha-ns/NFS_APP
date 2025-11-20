@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'products_page.dart' as products;
+import '../test/connection_test.dart';
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  int _selectedIndex = 0;
+
+  Widget _buildDashboard() {
     final stats = [
       {'title': 'Total Products', 'value': '12', 'icon': Icons.inventory_2, 'color': Colors.blue},
       {'title': 'Categories', 'value': '3', 'icon': Icons.category, 'color': Colors.green},
@@ -23,24 +31,7 @@ class AdminDashboard extends StatelessWidget {
       {'title': 'Manage Collections', 'desc': 'Create product collections', 'color': Colors.orange.shade100},
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Row(
-          children: const [
-            Icon(Icons.dashboard, color: Colors.black),
-            SizedBox(width: 8),
-            Text('NFS Admin', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        actions: [
-          IconButton(icon: const Icon(Icons.notifications, color: Colors.black), onPressed: () {}),
-          const CircleAvatar(backgroundColor: Colors.black, child: Text('A', style: TextStyle(color: Colors.white))),
-          const SizedBox(width: 10),
-        ],
-      ),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,16 +103,52 @@ class AdminDashboard extends StatelessWidget {
             }),
           ],
         ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          children: const [
+            Icon(Icons.dashboard, color: Colors.black),
+            SizedBox(width: 8),
+            Text('NFS Admin', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectionTestPage())),
+          ),
+          IconButton(icon: const Icon(Icons.notifications, color: Colors.black), onPressed: () {}),
+          const CircleAvatar(backgroundColor: Colors.black, child: Text('A', style: TextStyle(color: Colors.white))),
+          const SizedBox(width: 10),
+        ],
+      ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildDashboard(),
+          const products.ProductsPage(),
+          const Center(child: Text('Orders Page', style: TextStyle(fontSize: 24))),
+          const Center(child: Text('Users Page', style: TextStyle(fontSize: 24))),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.inventory_2), label: 'Products'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Orders'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Analytics'),
-          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
         ],
       ),
     );
