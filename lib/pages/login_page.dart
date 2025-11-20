@@ -101,7 +101,11 @@ class _LoginPageState extends State<LoginPage> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.store, size: 48, color: Color(0xFF6C63FF)),
+          child: Image.network(
+            'https://res.cloudinary.com/dwwypumxh/image/upload/v1762531629/NFS_Logo_PNG_z5qisi.png',
+            width: 48,
+            height: 48,
+          ),
         ),
         const SizedBox(height: 16),
         const Text(

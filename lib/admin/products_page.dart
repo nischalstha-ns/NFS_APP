@@ -14,7 +14,6 @@ class _ProductsPageState extends State<ProductsPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _filterStatus = 'All';
-  String _filterCategory = 'All';
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +72,7 @@ class _ProductsPageState extends State<ProductsPage> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: _filterStatus,
+                  initialValue: _filterStatus,
                   decoration: InputDecoration(
                     labelText: 'Status',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -115,13 +114,21 @@ class _ProductsPageState extends State<ProductsPage> {
         }
 
         var products = snapshot.data!.docs.where((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          final matchesSearch = _searchQuery.isEmpty ||
-              (data['name'] ?? '').toLowerCase().contains(_searchQuery) ||
-              (data['category'] ?? '').toLowerCase().contains(_searchQuery);
-          final matchesStatus = _filterStatus == 'All' || 
-              (data['status'] ?? 'Active').toLowerCase() == _filterStatus.toLowerCase();
-          return matchesSearch && matchesStatus;
+          try {
+            final data = doc.data() as Map<String, dynamic>;
+            final name = (data['name'] ?? '').toString().toLowerCase();
+            final category = (data['category'] ?? '').toString().toLowerCase();
+            final status = (data['status'] ?? 'Active').toString().toLowerCase();
+            
+            final matchesSearch = _searchQuery.isEmpty ||
+                name.contains(_searchQuery) ||
+                category.contains(_searchQuery);
+            final matchesStatus = _filterStatus == 'All' || 
+                status == _filterStatus.toLowerCase();
+            return matchesSearch && matchesStatus;
+          } catch (e) {
+            return false;
+          }
         }).toList();
 
         return LayoutBuilder(
@@ -168,10 +175,14 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   Widget _buildProductCard(String productId, Map<String, dynamic> product) {
-    final images = product['images'] as List?;
-    final status = product['status'] ?? 'Active';
-    final sizes = product['sizes'] as List?;
-    final colors = product['colors'] as List?;
+    final images = product['images'] != null ? List<String>.from(product['images']) : <String>[];
+    final status = (product['status'] ?? 'Active').toString();
+    final sizes = product['sizes'] != null ? List<String>.from(product['sizes']) : <String>[];
+    final name = (product['name'] ?? 'No Name').toString();
+    final category = (product['category'] ?? 'N/A').toString();
+    final brand = (product['brand'] ?? 'N/A').toString();
+    final price = (product['price'] ?? 0).toString();
+    final stock = (product['stock'] ?? 0).toString();
 
     return Card(
       elevation: 2,
@@ -189,7 +200,7 @@ class _ProductsPageState extends State<ProductsPage> {
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                     color: Colors.grey[200],
                   ),
-                  child: images != null && images.isNotEmpty
+                  child: images.isNotEmpty
                       ? ClipRRect(
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                           child: Image.network(
@@ -236,19 +247,19 @@ class _ProductsPageState extends State<ProductsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product['name'] ?? 'No Name',
+                    name,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${product['category']} • ${product['brand'] ?? 'N/A'}',
+                    '$category • $brand',
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (sizes != null && sizes.isNotEmpty) ...[
+                  if (sizes.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Wrap(
                       spacing: 4,
@@ -267,11 +278,11 @@ class _ProductsPageState extends State<ProductsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Rs. ${product['price']}',
+                            'Rs. $price',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.blue),
                           ),
                           Text(
-                            'Stock: ${product['stock'] ?? 0}',
+                            'Stock: $stock',
                             style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                           ),
                         ],

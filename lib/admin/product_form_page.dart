@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import '../services/cloudinary_service.dart';
 
 class ProductFormPage extends StatefulWidget {
@@ -27,7 +26,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
   String _status = 'Active';
   List<String> _selectedSizes = [];
   List<String> _selectedColors = [];
-  List<XFile> _newImages = [];
+  final List<XFile> _newImages = [];
   List<String> _existingImages = [];
   bool _isLoading = false;
 
@@ -254,7 +253,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
   Widget _buildStatusDropdown() {
     return DropdownButtonFormField<String>(
-      value: _status,
+      initialValue: _status,
       decoration: InputDecoration(
         labelText: 'Status',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -437,13 +436,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
         'name': _nameController.text.trim(),
         'description': _descriptionController.text.trim(),
         'category': _categoryController.text.trim(),
-        'brand': _brandController.text.trim(),
+        'brand': _brandController.text.trim().isEmpty ? 'N/A' : _brandController.text.trim(),
         'price': double.parse(_priceController.text),
         'stock': int.parse(_stockController.text.isEmpty ? '0' : _stockController.text),
         'status': _status,
         'sizes': _selectedSizes,
         'colors': _selectedColors,
         'images': allImageUrls,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
       if (widget.productId == null) {
