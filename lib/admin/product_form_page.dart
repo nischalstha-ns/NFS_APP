@@ -443,11 +443,11 @@ class _ProductFormPageState extends State<ProductFormPage> {
         'sizes': _selectedSizes,
         'colors': _selectedColors,
         'images': allImageUrls,
-        'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
       if (widget.productId == null) {
+        productData['createdAt'] = FieldValue.serverTimestamp();
         await FirebaseFirestore.instance.collection('products').add(productData);
       } else {
         await FirebaseFirestore.instance.collection('products').doc(widget.productId).update(productData);

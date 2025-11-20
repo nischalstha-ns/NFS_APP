@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'wishlist_page.dart';
 import 'cart_page.dart';
-import 'profile_page_new.dart';
+import 'profile_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -18,7 +18,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const HomePageContent(),
     const WishlistPage(),
     const CartPage(),
-    const ProfilePageNew(),
+    const ProfilePage(),
   ];
 
   @override
